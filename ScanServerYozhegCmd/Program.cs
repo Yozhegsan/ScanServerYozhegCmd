@@ -62,8 +62,6 @@ namespace ScanServerYozhegCmd
 
         public static void ReadCallback(IAsyncResult ar)
         {
-
-            string content = string.Empty;
             StateObject state = (StateObject)ar.AsyncState;
             using (Socket handler = state.workSocket)
             {
@@ -71,12 +69,7 @@ namespace ScanServerYozhegCmd
                 try { bytesRead = handler.EndReceive(ar); } catch { }
                 log.Add("Receive command #" + state.buffer[0]);
                 Console.WriteLine("Receive command #" + state.buffer[0] + "\r\n");
-                switch (state.buffer[0])
-                {
-                    case 48: // '0' - Scan and send
-                        Send(handler);
-                        break;
-                }
+                switch (state.buffer[0]) { case 48: Send(handler); break; }
             }
         }
 
@@ -108,10 +101,9 @@ namespace ScanServerYozhegCmd
 
         public static int Main(String[] args)
         {
+            if (args.Count() == 0) { SrvPort = 11111; } else { try { SrvPort = Math.Abs(int.Parse(args[0])); } catch { SrvPort = 11111; } }
             Console.Title = "Scanner Server by Yozheg";
             bool LoadFlag = true;
-            string s = File.ReadAllText(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\s.txt");
-            try { SrvPort = int.Parse(s); } catch { SrvPort = 55777; }
             Console.WriteLine("Port: " + SrvPort + "\r\n");
             if (!Directory.Exists(ScanFolder)) Directory.CreateDirectory(ScanFolder);
             scan = new Scanner();
